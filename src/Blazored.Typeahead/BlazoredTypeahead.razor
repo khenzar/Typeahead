@@ -7,7 +7,7 @@
         {
             <input class="blazored-typeahead__input"
                    bind-value-oninput="@SearchText"
-                   onfocus="@HandleFocus"
+                   onfocusin="@HandleFocusIn" onfocusout="@HandleFocusOut"
                    type="text"
                    autocomplete="off"
                    placeholder="@Placeholder" />
@@ -20,7 +20,7 @@
         }
         else if (!EditMode && Item != null)
         {
-            <div class="blazored-typeahead__input-mask" onclick="@HandleFocus">
+            <div class="blazored-typeahead__input-mask" onclick="@HandleFocusIn">
                 @SelectedTemplate(Item)
             </div>
         }

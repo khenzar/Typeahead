@@ -12,6 +12,8 @@ namespace Blazored.Typeahead
         [Parameter] protected TItem Item { get; set; }
         [Parameter] protected EventCallback<TItem> ItemChanged { get; set; }
         [Parameter] protected Func<string, Task<List<TItem>>> Data { get; set; }
+        [Parameter] protected Func<TItem, string> ItemText { get; set; }
+        [Parameter] protected Func<string, TItem> NewItem { get; set; }
         [Parameter] protected RenderFragment NotFoundTemplate { get; set; }
         [Parameter] protected RenderFragment<TItem> ResultTemplate { get; set; }
         [Parameter] protected RenderFragment<TItem> SelectedTemplate { get; set; }
@@ -34,13 +36,13 @@ namespace Blazored.Typeahead
 
                 if (value.Length == 0)
                 {
-                    _debounceTimer.Stop();
-                    SearchResults.Clear();
+                    _debounceTimer?.Stop();
+                    SearchResults?.Clear();
                 }
                 else if (value.Length > MinimumLength)
                 {
-                    _debounceTimer.Stop();
-                    _debounceTimer.Start();
+                    _debounceTimer?.Stop();
+                    _debounceTimer?.Start();
                 }
             }
         }
@@ -63,10 +65,18 @@ namespace Blazored.Typeahead
             }
         }
 
-        protected void HandleFocus()
+        protected void HandleFocusIn()
         {
-            SearchText = "";
+            SearchText = ItemText?.Invoke(Item) ?? "";
             EditMode = true;
+        }
+        protected void HandleFocusOut()
+        {
+            if (!string.IsNullOrWhiteSpace(SearchText) && NewItem != null)
+            {
+                Item = NewItem.Invoke(SearchText);
+            }
+            EditMode = false;
         }
 
         protected async void Search(Object source, ElapsedEventArgs e)
